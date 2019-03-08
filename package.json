@@ -1,0 +1,12 @@
+{
+  "name": "tinyrpc",
+  "version": "0.1.0",
+  "description": "Nodejs implemention of [avplayer/tinyrpc](https://github.com/avplayer/tinyrpc/)",
+  "main": "index.js",
+  "author": "You Cai <omegacoleman@gmail.com>",
+  "license": "BSL-1.0",
+  "dependencies": {
+    "protobufjs": "^6.8.8",
+    "ws": "^6.2.0"
+  }
+}
