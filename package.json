@@ -6,11 +6,18 @@
   "author": "You Cai <omegacoleman@gmail.com>",
   "license": "BSL-1.0",
   "dependencies": {
+    "blob-to-buffer": "^1.2.8",
     "isomorphic-ws": "^4.0.1",
     "protobufjs": "^6.8.8",
     "ws": "^6.2.0"
-  }, 
+  },
   "scripts": {
-    "make-static": "pbjs -t static-module -w commonjs -o rpc_service_ptl.js rpc_service_ptl.proto"
+    "make-static": "pbjs -t static-module -w commonjs -o rpc_service_ptl.js rpc_service_ptl.proto",
+    "make-test-chat-static": "pbjs -t static-module -w commonjs -o ./test/chatclient-web/src/chat.js ./test/chat.proto",
+    "build-test-chat": "cd test/chatclient-web && webpack"
+  },
+  "devDependencies": {
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3"
   }
 }

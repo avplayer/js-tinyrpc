@@ -5,6 +5,13 @@ const rpc_proto = require("./rpc_service_ptl.js")
 const baseproto = rpc_proto.rpc_service_ptl.rpc_base_ptl
 const call_enum = rpc_proto.rpc_service_ptl.rpc_base_ptl.calltype
 
+var blob_to_buffer
+
+if(typeof Blob != "undefined")
+{
+	blob_to_buffer = require('blob-to-buffer')
+}
+
 const to_object_settings = {
 	bytes: Buffer, 
 	enums: String, 
@@ -25,16 +32,36 @@ function process_base(base_data)
 	{
 		message = baseproto.decode(Buffer.from(base_data, "utf8"))
 	} else {
-		message = baseproto.decode(base_data)
+		message = baseproto.decode(Buffer.from(base_data))
 	}
 	let packet = baseproto.toObject(message, to_object_settings)
 	return packet
+}
+
+function lookup_by_name(tiny, name)
+{
+	if(tiny.reflected)
+	{
+		return tiny.proto.lookup(name)
+	}
+	let parts = name.split(".")
+	let find = tiny.proto
+	for (let i = 0; i < parts.length; i++)
+	{
+		find = find[parts[i]]
+	}
+	return find
 }
 
 function tiny(proto, events)
 {
 	var event_by_request = {}
 	var reply_by_request = {}
+	let reflected = false
+	if(proto.nested != undefined)
+	{
+		reflected = true
+	}
 	for(let request_reply in events)
 	{
 		let request = request_reply.split("$")[0]
@@ -44,6 +71,7 @@ function tiny(proto, events)
 	}
 	return {
 		proto, 
+		reflected, 
 		call: function (ws, request_type, request_object, callback) {
 			let session
 			if (this.recycled_sessions.length == 0)
@@ -55,7 +83,7 @@ function tiny(proto, events)
 			}
 			
 
-			let request_proto = proto.lookupType(request_type)
+			let request_proto = lookup_by_name(this, request_type)
 			let request_payload = request_proto.encode(request_object).finish()
 			send_base(ws, {
 				message: request_type, 
@@ -81,35 +109,55 @@ function tiny(proto, events)
 	}
 }
 
+function ondata(tiny, ws, data)
+{
+	let packet = process_base(data)
+	let payload_proto = lookup_by_name(tiny, packet.message)
+	let payload_message = payload_proto.decode(packet.payload)
+	let payload_object = payload_proto.toObject(payload_message, to_object_settings)
+
+	switch(packet.call)
+	{
+		case "caller":
+		let returned_object = tiny.event_by_request[packet.message](payload_object)
+
+		let returned_proto_typename = tiny.reply_by_request[packet.message]
+		let returned_proto = lookup_by_name(tiny, returned_proto_typename)
+		let returned_payload = returned_proto.encode(returned_object).finish()
+		send_base(ws, {
+			message: returned_proto_typename, 
+			call: call_enum["callee"], 
+			session: packet.session, 
+			payload: Buffer.from(returned_payload)
+		})
+		break
+		case "callee":
+		tiny.session_callbacks[packet.session](payload_object)
+		tiny.recycled_sessions.push(packet.session)
+		break
+	}
+}
+
 function takeover(tiny, ws)
 {
-	ws.on("message", function incoming(data) {
-		let packet = process_base(data)
-		let payload_proto = tiny.proto.lookupType(packet.message)
-		let payload_message = payload_proto.decode(packet.payload)
-		let payload_object = payload_proto.toObject(payload_message, to_object_settings)
-
-		switch(packet.call)
+	ws.onmessage = function (event) {
+		let data = event.data
+		if(typeof Blob != "undefined")
 		{
-			case "caller":
-			let returned_object = tiny.event_by_request[packet.message](payload_object)
-
-			let returned_proto_typename = tiny.reply_by_request[packet.message]
-			let returned_proto = tiny.proto.lookupType(returned_proto_typename)
-			let returned_payload = returned_proto.encode(returned_object).finish()
-			send_base(ws, {
-				message: returned_proto_typename, 
-				call: call_enum["callee"], 
-				session: packet.session, 
-				payload: Buffer.from(returned_payload)
-			})
-			break
-			case "callee":
-			tiny.session_callbacks[packet.session](payload_object)
-			tiny.recycled_sessions.push(packet.session)
-			break
+			if(data instanceof Blob)
+			{
+				blob_to_buffer(data, (error, buffer) => {
+					if(error)
+					{
+						throw error
+					}
+					ondata(tiny, ws, buffer)
+				})
+				return
+			}
 		}
-	})
+		ondata(tiny, ws, data)
+	}
 }
 
 module.exports.tiny = tiny

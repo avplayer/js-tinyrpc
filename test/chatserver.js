@@ -12,8 +12,6 @@ const wss = new WebSocket.Server({
 
 async function run()
 {
-	console.log("TinyRPC inited")
-
 	let chat_proto = await protobuf.load("chat.proto")
 	let tiny = tinyrpc.tiny(chat_proto, {
 		"chat.ChatSendMessage$chat.ChatReplyMessage": function(request) {

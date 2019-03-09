@@ -12,8 +12,6 @@ const rl = readline.createInterface({
 
 async function run()
 {
-	console.log("TinyRPC inited")
-	
 	let chat_proto = await protobuf.load("chat.proto")
 
 	let ws = new WebSocket("ws://127.0.0.1:8000/")
