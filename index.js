@@ -1,21 +1,14 @@
 
-const protobuf = require("protobufjs")
 const path = require("path")
 
-var baseproto
-var call_enum
+const rpc_proto = require("./rpc_service_ptl.js")
+const baseproto = rpc_proto.rpc_service_ptl.rpc_base_ptl
+const call_enum = rpc_proto.rpc_service_ptl.rpc_base_ptl.calltype
 
 const to_object_settings = {
 	bytes: Buffer, 
 	enums: String, 
 	defaults: true
-}
-
-async function init()
-{
-	let rpc_proto = await protobuf.load(path.join(__dirname, "rpc_service_ptl.proto"))
-	baseproto = rpc_proto.lookupType("rpc_service_ptl.rpc_base_ptl")
-	call_enum = rpc_proto.lookupEnum("rpc_service_ptl.rpc_base_ptl.calltype")
 }
 
 function send_base(ws, base_object)
@@ -66,7 +59,7 @@ function tiny(proto, events)
 			let request_payload = request_proto.encode(request_object).finish()
 			send_base(ws, {
 				message: request_type, 
-				call: call_enum.values["caller"], 
+				call: call_enum["caller"], 
 				session: session, 
 				payload: Buffer.from(request_payload)
 			})
@@ -106,7 +99,7 @@ function takeover(tiny, ws)
 			let returned_payload = returned_proto.encode(returned_object).finish()
 			send_base(ws, {
 				message: returned_proto_typename, 
-				call: call_enum.values["callee"], 
+				call: call_enum["callee"], 
 				session: packet.session, 
 				payload: Buffer.from(returned_payload)
 			})
@@ -119,5 +112,4 @@ function takeover(tiny, ws)
 	})
 }
 
-module.exports.init = init
 module.exports.tiny = tiny

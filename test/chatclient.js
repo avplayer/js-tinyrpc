@@ -12,7 +12,6 @@ const rl = readline.createInterface({
 
 async function run()
 {
-	await tinyrpc.init()
 	console.log("TinyRPC inited")
 	
 	let chat_proto = await protobuf.load("chat.proto")
