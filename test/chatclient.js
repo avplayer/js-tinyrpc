@@ -40,6 +40,11 @@ async function run()
 		name = inputed_name
 		say_something()
 	})
+
+	rl.on('SIGINT', () => {
+		process.stdout.write("\nCtrl+C pressed, exiting.\n")
+		process.exit(0)
+	})
 }
 
 run()
