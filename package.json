@@ -6,6 +6,7 @@
   "author": "You Cai <omegacoleman@gmail.com>",
   "license": "BSL-1.0",
   "dependencies": {
+    "isomorphic-ws": "^4.0.1",
     "protobufjs": "^6.8.8",
     "ws": "^6.2.0"
   }
