@@ -52,7 +52,15 @@ function tiny(proto, events)
 	return {
 		proto, 
 		call: function (ws, request_type, request_object, callback) {
-			let session = this.session_callbacks.push(callback) - 1
+			let session
+			if (this.recycled_sessions.length == 0)
+			{
+				session = this.session_callbacks.push(callback) - 1
+			} else {
+				session = this.recycled_sessions.pop()
+				this.session_callbacks[session] = callback
+			}
+			
 
 			let request_proto = proto.lookupType(request_type)
 			let request_payload = request_proto.encode(request_object).finish()
@@ -66,6 +74,7 @@ function tiny(proto, events)
 		event_by_request, 
 		reply_by_request, 
 		session_callbacks: [], 
+		recycled_sessions: [], 
 		takeover: function(ws)
 		{
 			takeover(this, ws)
@@ -104,7 +113,7 @@ function takeover(tiny, ws)
 			break
 			case "callee":
 			tiny.session_callbacks[packet.session](payload_object)
-			tiny.session_callbacks.splice(packet.session, 1)
+			tiny.recycled_sessions.push(packet.session)
 			break
 		}
 	})
