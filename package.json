@@ -1,6 +1,6 @@
 {
   "name": "tinyrpc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Nodejs implemention of [avplayer/tinyrpc](https://github.com/avplayer/tinyrpc/)",
   "main": "index.js",
   "author": "You Cai <omegacoleman@gmail.com>",
