@@ -129,12 +129,16 @@ const tinyrpc = require("js-tinyrpc")
 ## tinyrpc.tiny(proto, events)
 
 proto: your protobufjs root object
+
 you may use a reflexed object or a static object, both was supported
 
+
 events: map of the events provided by **this end**, its keys are strings by format "request$reply"
+
 e.g. { "chat.ChatSendMessage$chat.ChatReplyMessage", function () {...} }
 
 the event function takes an object returned by protobufjs toObject, and **must return a "valid message object" defined by protobufjs**
+
 see: [restrictions for valid message](https://www.npmjs.com/package/protobufjs#valid-message)
 
 returns an object resembling an RPC end interface, which we call a "tiny"
@@ -160,9 +164,13 @@ takeover() all connections incoming, making wss an RPC server
 ## tiny.call(ws, request_type, request_object, callback)
 
 ws: a ws websocket, isomorphic-ws is supported
+
 request_type: message type name string for the request object
+
 request_object: **valid message object** with request data
-	see: [restrictions for valid message](https://www.npmjs.com/package/protobufjs#valid-message)
+
+  see: [restrictions for valid message](https://www.npmjs.com/package/protobufjs#valid-message)
+
 callback: takes the reply object returned by the other end
 
 
