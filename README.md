@@ -1,4 +1,4 @@
-node-tinyrpc
+js-tinyrpc
 ------------
 
 # Table of Contents
@@ -33,7 +33,7 @@ message ChatReplyMessage {
 }
 ```
 
-then with node-tinyrpc, you may have:
+then with js-tinyrpc, you may have:
 
 nodejs server
 
@@ -112,7 +112,7 @@ To use:
 
 run
 ```
-npm install node-tinyrpc --save
+npm install js-tinyrpc --save
 npm install ws protobufjs --save
 ```
 and maybe
@@ -123,7 +123,7 @@ if you need to use it in a browser
 
 import it in your project:
 ```
-const tinyrpc = require("node-tinyrpc")
+const tinyrpc = require("js-tinyrpc")
 ```
 
 ## tinyrpc.tiny(proto, events)
