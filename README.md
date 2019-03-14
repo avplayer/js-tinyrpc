@@ -1,3 +1,15 @@
+node-tinyrpc
+------------
+
+# Table of Contents
+
+* [Overview](#overview)
+* [Examples](#examples)
+* [API](#api)
+  * [tinyrpc\.tiny(proto, events)](#tinyrpctinyproto-events)
+  * [tiny\.takeover(ws)](#tinytakeoverws)
+  * [tiny\.server(wss)](#tinyserverwss)
+  * [tiny\.call(ws, request\_type, request\_object, callback)](#tinycallws-request_type-request_object-callback)
 
 # Overview
 
